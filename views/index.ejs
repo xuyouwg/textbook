@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>留言板</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- 导航 -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/"><span class="sr-only">(current)</span></a></li>
+                    <li><a href="/"><span class="sr-only">(current)</span></a></li>
+                    <li><a href="/"><span class="sr-only">(current)</span></a></li>
+                    <li class="active"><a href="/">留言板 <span class="sr-only">(current)</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="badge list-group-item-success">
+                            <%= counts %></span>
+                        已有
+                        <%= counts %>条留言，快来留言吧
+                    </li>
+                </ul>
+            </div>
+
+            <div class="form-horizontal col-lg-5">
+                <div class="form-group">
+                    <label class="sr-only" for="exampleInputEmail3">留言标题：</label>
+                    <input type="text" class="form-control" name="title" placeholder="留言标题">
+                </div>
+
+                <div class="form-group">
+                    <label class="sr-only" for="exampleInputName3">用户名：</label>
+                    <input type="text" class="form-control" name="username" placeholder="用户名">
+                </div>
+
+                <div class=" form-group">
+                    <label class="sr-only" for="exampleInputName3">留言内容：</label>
+                    <textarea class="form-control" name="content" cols="7" placeholder="留言内容"></textarea>
+                </div>
+
+                <button class="btn btn-default" id="add">提交</button>
+            </div>
+
+        </div>
+        <hr>
+        <!-- 留言内容 -->
+        <% for(var i = 0; i < result.length; i++){ %>
+        <div class="media">
+            <div class="media-left">
+                <% if(i+1>4){ %>
+                <img width="70px" class="media-object" src="../images/4.jpg" alt="...">
+                <% }else{ %>
+                <img width="70px" class="media-object" src="../images/<%= i+1%>.jpg" alt="...">
+                <% } %>
+            </div>
+
+            <div class="media-body">
+                <h4 class="media-heading">
+                    <%= result[i].title %>
+                </h4>
+                <p class="con">
+                    <%= result[i].content %>
+                </p>
+                <p class="usna">
+                    <%= i+1%>楼&nbsp;&nbsp;
+                    <%= result[i].username %>&nbsp;&nbsp;
+                    <%= result[i].time %>发表</p>
+                <button class="btn btn-default del" oid="<%= result[i]._id %>">删除</button>
+                <hr>
+            </div>
+
+        </div>
+
+        <% } %>
+
+    </div>
+    <!-- 分页符 -->
+    <nav class="pag" style="text-align: center">
+        <ul class="pagination">
+            <li>
+                <a href="?p=1" title="First Page">&laquo; 首页</a>
+            </li>
+            <li>
+                <a href="?p=<%= ((page - 1) > 0 ? (page - 1) : 1) %>" title="Previous Page">&laquo; 上一页</a>
+            </li>
+
+            <%  for(var i = 1; i <= pages; i++){ 
+                if (i == page) {
+                     var classname = "active";
+                   } else {
+                    var classname = "";
+                }
+                if(i < 4){  %>
+            <li class="<%= classname %>">
+                <a href="?p=<%= i %>">
+                    <%= i %></a>
+            </li>
+            <% }else if(i == 4){ %>
+            <li class="<%= classname %>">
+                <a href="?p=4">4</a>
+            </li>
+            <li class=" ">
+                <a href="#">...</a>
+            </li>
+            <% }else if(i > 4 && i<page){ %>
+            <li class="<%= classname %>" style="display:none">
+                <a href="?p=<%= i %>">
+                    <%= i %></a>
+            </li>
+            <% }else if(i>page && i<=pages){ %>
+            <li class="<%= classname %>" style="display:none">
+                <a href="?p=<%= i %>">
+                    <%= i %></a>
+            </li>
+            <% }else{ %>
+            <li class="<%= classname %>">
+                <a href="?p=<%= i %>">
+                    <%= i %></a>
+            </li>
+            <% } } %>
+            <li><a href="?p=<%= (parseInt(page) + 1 < pages ? parseInt(page)+1 : pages) %>" class="Next Page">下一页&raquo;</a></li>
+            <li><a href="?p=<%= pages %>" title="Last Page">尾页 &raquo;</a></a></li>
+        </ul>
+    </nav>
+
+
+    <script src="../js/jquery-2.1.4.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/do.js"></script>
+    <script>
+        // ajax请求添加
+        $("#add").click(function () {
+            var $_this = $(this);
+            var datas = {};
+            datas.title = $('input').eq(0).val();
+            datas.username = $('input').eq(1).val();
+            datas.content = $('textarea').eq(0).val();
+            console.log(datas);
+            for (var key in datas) {
+                if (datas[key] == "") {
+                    alert("内容不能为空!");
+                    return;
+                } else {
+                    $.post("http://localhost:3000/add", datas, function (data) {
+                        console.log(data);
+                        var str = '<div class="media"><div class="media-left"><img width="70px" class="media-object" src="../images/4.jpg" alt="..."></div><div class="media-body"><h4 class="media-heading">' + data[0].title + '</h4><p>' + data[0].content + '</p><p>' + <%= i+1%> + '楼&nbsp;&nbsp; ' + data[0].username + '&nbsp;&nbsp; ' + data[0].time + '发表</p><button class="btn btn-default del" oid="' + data[0]._id + '">删除</button><hr></div></div>';
+                        $(str).appendTo(".container");
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
